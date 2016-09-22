@@ -36,16 +36,30 @@ A user of the Cognoma system.
 
 ### Gene (/genes)
 
-Reference table for genes within Cognoma. Entire model is read-only.
+Reference table for genes within Cognoma. Entire model is read-only. This table is created using [`django-genes`](https://bitbucket.org/greenelab/django-genes).
 
 | Field        | Type           | Description |
 | ------------- |:-------------:| ----------:|
-| entrez_gene_id | integer | Primary Key. |
-| symbol | string |  |
+| entrezid | integer | Primary Key. |
+| systematic_name | string |  |
+| standard_name | string |  |
 | description | string |  |
-| aliases | string |  |
+| organism | integer | Foreign Key referencing the Organism. |
+| aliases | string | space-separated list of aliases |
+| obsolete | boolean |  |
+| weight | boolean | Weight used for search results since multiple genes may have the same symbol |
 
-#### Disease Types (/diseases)
+### Organism (/organisms)
+
+Reference table for organisms within Cognoma. Entire model is read-only. This table is created using [`django-organisms`](https://bitbucket.org/greenelab/django-organisms). Note that Project Cognoma will deal exclusively with human genes (when taxonomy_id equals 9606).
+
+| Field        | Type           | Description |
+| ------------- |:-------------:| ----------:|
+| taxonomy_id | integer | Primary Key. Taxonomy ID assigned by NCBI. |
+| common_name | string | Organism common name, e.g. 'Human' |
+| scientific_name | string | Organism scientific/binomial name, e.g. 'Homo sapiens' |
+
+### Disease Types (/diseases)
 
 Entire model is read-only.
 
