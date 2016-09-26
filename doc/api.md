@@ -15,7 +15,7 @@ A classifier represents a classifier built using machine learning in Cognoma.
 | ------------- |:-------------:| ----------:| ----------:|
 | id | integer | Primary Key. Auto-incrementing. | Y |
 | genes | array[integer] | Genes to be used in the classifier. entrezids. Can be expanded. eg ?expand=genes | N |
-| disease_types | array[string] | Disease types of interest for the classifier. ex ["KIRC","KIRP"] Can be expanded. eg ?expand=tissues | N |
+| diseases | array[string] | Diseases of interest for the classifier. ex ["KIRC","KIRP"] Can be expanded. eg ?expand=diseases | N |
 | user_id | integer | Foreign Key referencing the user who created the classifier. Can be expanded. eg ?expand=user | Y |
 | task_id | integer |  Foreign Key referencing the classifier task. Can be expanded. eg ?expand=user,task | Y |
 | results | object | Results for the machine learning classifier. Stored as JSONB in Postgres. | N |
@@ -59,7 +59,7 @@ Reference table for organisms within Cognoma. Entire model is read-only. This ta
 | common_name | string | Organism common name, e.g. 'Human' |
 | scientific_name | string | Organism scientific/binomial name, e.g. 'Homo sapiens' |
 
-### Disease Types (/diseases)
+### Disease (/diseases)
 
 Entire model is read-only.
 
@@ -100,7 +100,7 @@ POST Data
 
     {
         mutated_genes: [7157],
-        disease_types: ["KIRC", "KIRP"]
+        diseases: ["KIRC", "KIRP"]
     }
     
 Response
@@ -133,7 +133,7 @@ Response
             },
             ...
         ],
-        disease_types: [
+        diseases: [
         	  {
                 acronym: "KIRC",
                 name: "Kidney Clear Cell Carcinoma"
