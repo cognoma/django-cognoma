@@ -7,5 +7,3 @@ machine:
 database:
   override:
     - psql -c "CREATE ROLE app PASSWORD 'password' SUPERUSER CREATEDB INHERIT LOGIN"
-    - python manage.py makemigrations genes
-    - python manage.py makemigrations organisms
