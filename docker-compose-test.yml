@@ -1,0 +1,12 @@
+version: '2'
+services:
+  db:
+    image: postgres
+  core:
+    build: .
+    command: python manage.py test
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      

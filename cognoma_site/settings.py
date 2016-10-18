@@ -62,18 +62,14 @@ WSGI_APPLICATION = 'cognoma_site.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'cognoma',
-        'USER': 'app',
-        'PASSWORD': 'password',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
-        'OPTIONS': {
-            'options': '-c search_path=cognoma'
-        }
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'HOST': 'db',
+        'PORT': '5432'
     }
 }
 
-TEST_RUNNER = 'api.test.runner.PostgresSchemaTestRunner'
+#TEST_RUNNER = 'api.test.runner.PostgresSchemaTestRunner'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
