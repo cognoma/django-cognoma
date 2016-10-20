@@ -1,2 +1,0 @@
-FROM nginx
-ADD ./dev_nginx.conf /etc/nginx/conf.d/default.conf
