@@ -30,7 +30,7 @@ The server should start up at http://localhost:8080/, see the [API docs](https:/
 
 ## Running tests locally
 
-Make sure the service is up first using `docker-compose test` then run:
+Make sure the service is up first using `docker-compose up` then run:
 
 ```sh
 docker-compose exec core python manage.py test
