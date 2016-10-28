@@ -93,5 +93,8 @@ envs/
 .DS_Store
 ._*
 
+# Cognoma data directory
+data/
+
 # PyCharm IDE 
 .idea

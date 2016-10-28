@@ -36,11 +36,16 @@ Make sure the service is up first using `docker-compose up` then run:
 docker-compose exec core python manage.py test
 ```
 
-to run unit tests. Or, to load cancer-static data:
+## Loading cancer static data
+
+To load data, again with service up run:
 
 ```
 docker-compose exec core bash
 python manage.py acquiredata 
 python manage.py loaddata
-curl http://0.0.0.0:8000/diseases/
 ```
+
+To verify, run `curl http://localhost:8000/diseases/` to get a list of all diseases.
+
+Or, run `curl http://localhost:8000/samples?limit=10` to view data for 10 samples.
