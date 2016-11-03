@@ -44,8 +44,8 @@ Reference table for genes within Cognoma. Entire model is read-only. This table 
 | symbol | string | The short human-readable identifier |
 | description | string | The official full name for the gene |
 | gene_type | string | The type of gene |
-| synonyms | string | A pipe delimited list of alternative symbols |
-| aliases | string | A pipe delimited list of alternative descriptions |
+| synonyms | array[string] | Alternative symbols |
+| aliases | array[string] | Alternative descriptions |
 
 ### Disease (/diseases)
 
