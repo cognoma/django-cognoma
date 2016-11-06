@@ -40,7 +40,7 @@ docker-compose exec core python manage.py test
 
 To load data, again with service up run:
 
-```
+```sh
 docker-compose exec core bash
 python manage.py acquiredata 
 python manage.py loaddata
