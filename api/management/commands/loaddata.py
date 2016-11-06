@@ -30,7 +30,6 @@ class Command(BaseCommand):
 
         # Samples
         if Sample.objects.count() == 0:
-            # Django's ORM requires Python's None for null values... this filters accordingly
             sample_path = os.path.join(options['path'], 'samples.tsv')
             with open(sample_path) as sample_file:
                 sample_reader = csv.DictReader(sample_file, delimiter='\t')
