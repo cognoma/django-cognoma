@@ -26,7 +26,7 @@ SECRET_KEY = 'x!w(6=d6#)yl0ne8yhv#2+*+_nk7vf0#peh4hehg$&83fp^u01'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [os.getenv('DJANGO_HOST', '*')]
 
 
 # Application definition
@@ -65,10 +65,25 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.getenv('DB_NAME', 'postgres'),
         'USER': os.getenv('DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'postgres'),
         'HOST': os.getenv('DB_HOST', 'core_db'),
         'PORT': os.getenv('DB_PORT', '5432')
     }
 }
+
+dev_pub_key = """
+-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5knVYXDKNZAZ36TAo2S2
+it2PkkzlulB8jlLXIo9fOd6NV/v1gp3AUb3yz8otAa9lV5DKQvGUhkVe3dhfHNPv
+nL1w+x/4evi6qXnvbuJ+vlNcaJrSWFAvx8CFSRfUMnyACT7WDwkJZFYYWzTTBhzZ
+fE9D4/DtyrHhZFiB8xjAUbVmBO6f7zwp41Ehr11s5SokweYytwQy38AFvwGUOM6P
+AeN+7bMBi4PfTr4Y4VN/93OBckj4Dfe6AEtq31Z5Urh/e/+zaixbsmenAR1hvC6Z
+34+qca3WMUIZjdeIny4XP0xhzbZNP66tNqUBkJg/fkhKVEeFMHaQ7giBTtqMnXPz
+6wIDAQAB
+-----END PUBLIC KEY-----
+"""
+# SECURITY WARNING: change this to the prod public key!!
+JWT_PUB_KEY = os.getenv('JWT_PUB_KEY', dev_pub_key)
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
