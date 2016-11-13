@@ -16,3 +16,4 @@ pycparser==2.16
 pycrypto==2.6.1
 PyJWT==1.4.2
 six==1.10.0
+pandas==0.18.1

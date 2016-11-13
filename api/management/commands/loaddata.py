@@ -2,8 +2,9 @@ import os
 import csv
 
 from django.core.management.base import BaseCommand
+import pandas as pd
 
-from api.models import Disease, Sample
+from api.models import Disease, Sample, Gene, Mutation
 
 
 class Command(BaseCommand):
@@ -41,3 +42,20 @@ class Command(BaseCommand):
                         gender=row['gender'] or None,
                         age_diagnosed=row['age_diagnosed'] or None
                     )
+
+        # Genes
+        if Gene.objects.count() == 0:
+            gene_path = os.path.join(options['path'], 'genes.tsv')
+            with open(gene_path) as gene_file:
+                gene_reader = csv.DictReader(gene_file, delimiter='\t')
+                for row in gene_reader:
+                    Gene.objects.create(
+                        entrez_gene_id=row['entrez_gene_id'],
+                        symbol=row['symbol'],
+                        description=row['description'],
+                        chromosome=row['chromosome'] or None,
+                        gene_type=row['gene_type'],
+                        synonyms=row['synonyms'] or None,
+                        aliases=row['aliases'] or None
+                    )
+

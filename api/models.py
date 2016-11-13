@@ -3,12 +3,12 @@ from __future__ import unicode_literals
 from django.db import models
 from django.contrib.postgres import fields as postgresfields
 
-from genes.models import Gene
 
 GENDER_CHOICES = (
     ("male", "Male"),
     ("female", "Female")
 )
+
 
 class User(models.Model):
     class Meta:
@@ -21,12 +21,14 @@ class User(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+
 class Disease(models.Model):
     class Meta:
         db_table = "diseases"
 
     acronym = models.CharField(primary_key=True, max_length=255)
     name = models.CharField(max_length=255, null=False, blank=False)
+
 
 class Sample(models.Model):
     class Meta:
@@ -37,6 +39,20 @@ class Sample(models.Model):
     gender = models.CharField(choices=GENDER_CHOICES, max_length=6, null=True)
     age_diagnosed = models.IntegerField(null=True, blank=False)
 
+
+class Gene(models.Model):
+    class Meta:
+        db_table = "cognoma_genes"
+
+    entrez_gene_id = models.IntegerField(primary_key=True)
+    symbol = models.CharField(max_length=25)
+    description = models.CharField(max_length=255)
+    chromosome = models.CharField(max_length=25, null=True)
+    gene_type = models.CharField(max_length=25)
+    synonyms = models.TextField(null=True)
+    aliases = models.TextField(null=True)
+
+
 class Mutation(models.Model):
     class Meta:
         db_table = "mutations"
@@ -45,6 +61,7 @@ class Mutation(models.Model):
     gene = models.ForeignKey(Gene, related_name='mutations')
     sample = models.ForeignKey(Sample, related_name='mutations')
     status = models.BooleanField()
+
 
 class Classifier(models.Model):
     class Meta:
