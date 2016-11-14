@@ -127,14 +127,14 @@ class DiseaseRetrieve(generics.RetrieveAPIView):
 class MutationFilter(filters.FilterSet):
     class Meta:
         model = Mutation
-        fields = ['gene', 'sample', 'status']
+        fields = ['gene', 'sample']
 
 class MutationList(generics.ListAPIView):
     queryset = Mutation.objects.all()
     serializer_class = serializers.MutationSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = MutationFilter
-    ordering_fields = ('id', 'status',)
+    ordering_fields = ('id',)
     ordering = ('id',)
 
 class MutationRetrieve(generics.RetrieveAPIView):

@@ -44,7 +44,7 @@ class Gene(models.Model):
     class Meta:
         db_table = "cognoma_genes"
 
-    entrez_gene_id = models.IntegerField(primary_key=True)
+    entrezid = models.IntegerField(primary_key=True)
     symbol = models.CharField(max_length=25)
     description = models.CharField(max_length=255)
     chromosome = models.CharField(max_length=25, null=True)
@@ -60,7 +60,6 @@ class Mutation(models.Model):
     # id added by default
     gene = models.ForeignKey(Gene, related_name='mutations')
     sample = models.ForeignKey(Sample, related_name='mutations')
-    status = models.BooleanField()
 
 
 class Classifier(models.Model):

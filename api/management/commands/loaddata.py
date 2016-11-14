@@ -23,34 +23,41 @@ class Command(BaseCommand):
             disease_path = os.path.join(options['path'], 'diseases.tsv')
             with open(disease_path) as disease_file:
                 disease_reader = csv.DictReader(disease_file, delimiter='\t')
+                disease_list = []
                 for row in disease_reader:
-                    Disease.objects.create(
+                    disease = Disease(
                         acronym=row['acronym'],
                         name=row['disease']
                     )
+                    disease_list.append(disease)
+                Disease.objects.bulk_create(disease_list)
 
         # Samples
         if Sample.objects.count() == 0:
             sample_path = os.path.join(options['path'], 'samples.tsv')
             with open(sample_path) as sample_file:
                 sample_reader = csv.DictReader(sample_file, delimiter='\t')
+                sample_list = []
                 for row in sample_reader:
                     disease = Disease.objects.get(acronym=row['acronym'])
-                    Sample.objects.create(
+                    sample = Sample(
                         sample_id=row['sample_id'],
                         disease=disease,
                         gender=row['gender'] or None,
                         age_diagnosed=row['age_diagnosed'] or None
                     )
+                    sample_list.append(sample)
+                Sample.objects.bulk_create(sample_list)
 
         # Genes
         if Gene.objects.count() == 0:
             gene_path = os.path.join(options['path'], 'genes.tsv')
             with open(gene_path) as gene_file:
                 gene_reader = csv.DictReader(gene_file, delimiter='\t')
+                gene_list = []
                 for row in gene_reader:
-                    Gene.objects.create(
-                        entrez_gene_id=row['entrez_gene_id'],
+                    gene = Gene(
+                        entrezid=row['entrez_gene_id'],
                         symbol=row['symbol'],
                         description=row['description'],
                         chromosome=row['chromosome'] or None,
@@ -58,4 +65,24 @@ class Command(BaseCommand):
                         synonyms=row['synonyms'] or None,
                         aliases=row['aliases'] or None
                     )
+                    gene_list.append(gene)
+                Gene.objects.bulk_create(gene_list)
 
+        # Mutations
+        if Mutation.objects.count() == 0:
+            mutation_path = os.path.join(options['path'], 'mutation-matrix.tsv.bz2')
+            mutation_df = pd.read_table(mutation_path, index_col=0)
+            mutation_list = []
+            for row in mutation_df.iterrows():
+                sample_id = row[0]
+                sample = Sample.objects.get(sample_id=sample_id)
+                sample_status = row[1]
+                mutated_genes = sample_status[sample_status == 1].index
+                for mutated_gene in mutated_genes:
+                    gene = Gene.objects.get(entrezid=mutated_gene)
+                    mutation = Mutation(
+                        gene=gene,
+                        sample=sample
+                    )
+                    mutation_list.append(mutation)
+            Mutation.objects.bulk_create(mutation_list)
