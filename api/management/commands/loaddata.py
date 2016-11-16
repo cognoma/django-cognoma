@@ -73,16 +73,20 @@ class Command(BaseCommand):
             mutation_path = os.path.join(options['path'], 'mutation-matrix.tsv.bz2')
             mutation_df = pd.read_table(mutation_path, index_col=0)
             mutation_list = []
-            for row in mutation_df.iterrows():
-                sample_id = row[0]
+            for sample_id, sample_status in mutation_df.iterrows():
                 sample = Sample.objects.get(sample_id=sample_id)
-                sample_status = row[1]
                 mutated_genes = sample_status[sample_status == 1].index
                 for mutated_gene in mutated_genes:
-                    gene = Gene.objects.get(entrezid=mutated_gene)
-                    mutation = Mutation(
-                        gene=gene,
-                        sample=sample
-                    )
-                    mutation_list.append(mutation)
+                    try:
+                        gene = Gene.objects.get(entrezid=mutated_gene)
+                        mutation = Mutation(
+                            gene=gene,
+                            sample=sample
+                        )
+                        mutation_list.append(mutation)
+                    except:
+                        print('OOPS! Had an issue inserting sample', sample_id, 'mutation', mutated_gene)
+                if len(mutation_list) > 1000:
+                    Mutation.objects.bulk_create(mutation_list)
+                    mutation_list = []
             Mutation.objects.bulk_create(mutation_list)
