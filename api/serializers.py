@@ -5,8 +5,8 @@ from rest_framework import serializers, exceptions
 from expander import ExpanderSerializerMixin
 from drf_dynamic_fields import DynamicFieldsMixin
 
-from api.models import User, Classifier, Disease, Sample, Mutation
-from genes.models import Gene, Organism
+from api.models import User, Classifier, Disease, Sample, Mutation, Gene
+
 
 class UserSerializer(DynamicFieldsMixin, serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
@@ -50,46 +50,42 @@ class UserSerializer(DynamicFieldsMixin, serializers.Serializer):
 
         return output
 
-class OrganismSerializer(DynamicFieldsMixin, serializers.Serializer):
-    id = serializers.IntegerField()
-    taxonomy_id = serializers.IntegerField()
-    common_name = serializers.CharField()
-    scientific_name = serializers.CharField()
-    slug = serializers.CharField()
 
 class MutationSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializers.Serializer):
     id = serializers.IntegerField()
     gene = serializers.PrimaryKeyRelatedField(queryset=Gene.objects.all())
     sample = serializers.PrimaryKeyRelatedField(queryset=Sample.objects.all())
-    status = serializers.BooleanField()
+
 
 class GeneSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializers.Serializer):
     class Meta:
         expandable_fields = {
-            'organism': OrganismSerializer,
             'mutations': (MutationSerializer, (), {'many': True})
         }
 
-    id = serializers.IntegerField()
-    entrezid = serializers.IntegerField()
-    systematic_name = serializers.CharField()
-    standard_name = serializers.CharField()
+    entrez_gene_id = serializers.IntegerField()
+    symbol = serializers.CharField()
     description = serializers.CharField()
-    organism = OrganismSerializer()
-    aliases = serializers.CharField()
-    obsolete = serializers.BooleanField()
+    chromosome = serializers.CharField()
+    gene_type = serializers.CharField()
+    synonyms = serializers.ListField(child=serializers.CharField(allow_blank=True))
+    aliases = serializers.ListField(child=serializers.CharField(allow_blank=True))
     mutations = serializers.PrimaryKeyRelatedField(many=True, queryset=Mutation.objects.all())
+
 
 class MutationSerializerMeta:
     expandable_fields = {
         'gene': GeneSerializer,
     }
 
+
 MutationSerializer.Meta = MutationSerializerMeta
+
 
 class DiseaseSerializer(DynamicFieldsMixin, serializers.Serializer):
     acronym = serializers.CharField()
     name = serializers.CharField()
+
 
 class ClassifierSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializers.Serializer):
     class Meta:
@@ -144,6 +140,7 @@ class ClassifierSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializ
         instance.save()
         return instance
 
+
 class SampleSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializers.Serializer):
     class Meta:
         expandable_fields = {
@@ -156,4 +153,3 @@ class SampleSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializers.
     mutations = serializers.PrimaryKeyRelatedField(many=True, queryset=Mutation.objects.all())
     gender = serializers.CharField()
     age_diagnosed = serializers.IntegerField()
-

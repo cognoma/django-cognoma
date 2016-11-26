@@ -57,36 +57,13 @@ class Command(BaseCommand):
                 gene_list = []
                 for row in gene_reader:
                     gene = Gene(
-                        entrezid=row['entrez_gene_id'],
+                        entrez_gene_id=row['entrez_gene_id'],
                         symbol=row['symbol'],
                         description=row['description'],
                         chromosome=row['chromosome'] or None,
                         gene_type=row['gene_type'],
-                        synonyms=row['synonyms'] or None,
-                        aliases=row['aliases'] or None
+                        synonyms=row['synonyms'].split('|') or None,
+                        aliases=row['aliases'].split('|') or None
                     )
                     gene_list.append(gene)
                 Gene.objects.bulk_create(gene_list)
-
-        # Mutations
-        if Mutation.objects.count() == 0:
-            mutation_path = os.path.join(options['path'], 'mutation-matrix.tsv.bz2')
-            mutation_df = pd.read_table(mutation_path, index_col=0)
-            mutation_list = []
-            for sample_id, sample_status in mutation_df.iterrows():
-                sample = Sample.objects.get(sample_id=sample_id)
-                mutated_genes = sample_status[sample_status == 1].index
-                for mutated_gene in mutated_genes:
-                    try:
-                        gene = Gene.objects.get(entrezid=mutated_gene)
-                        mutation = Mutation(
-                            gene=gene,
-                            sample=sample
-                        )
-                        mutation_list.append(mutation)
-                    except:
-                        print('OOPS! Had an issue inserting sample', sample_id, 'mutation', mutated_gene)
-                if len(mutation_list) > 1000:
-                    Mutation.objects.bulk_create(mutation_list)
-                    mutation_list = []
-            Mutation.objects.bulk_create(mutation_list)

@@ -1,7 +1,7 @@
 from rest_framework.test import APITestCase, APIClient
 
-from api.models import Disease
-from genes.models import Gene, Organism
+from api.models import Disease, Gene
+
 
 class ClassifierTests(APITestCase):
     classifier_keys = ['id',
@@ -22,30 +22,26 @@ class ClassifierTests(APITestCase):
 
         self.token = 'Bearer ' + self.user['random_slugs'][0]
 
-        self.human = Organism.objects.create(taxonomy_id=123,
-                                             common_name='human',
-                                             scientific_name='homo sapien',
-                                             slug='homo-sapien')
-        self.gene1 = Gene.objects.create(entrezid=123456,
-                                         systematic_name='foo',
-                                         description='bar',
-                                         aliases='foo, bar',
-                                         obsolete=False,
-                                         weight=1.0,
-                                         organism_id=self.human.id)
-        self.gene2 = Gene.objects.create(entrezid=234567,
-                                         systematic_name='foo',
-                                         description='bar',
-                                         aliases='foo, bar',
-                                         obsolete=False,
-                                         weight=1.0,
-                                         organism_id=self.human.id)
+        self.gene1 = Gene.objects.create(entrez_gene_id=123456,
+                                         symbol='GENE123',
+                                         description='foo',
+                                         chromosome='1',
+                                         gene_type='bar',
+                                         synonyms='foo|bar'.split('|'),
+                                         aliases='foo|bar'.split('|'))
+        self.gene2 = Gene.objects.create(entrez_gene_id=234567,
+                                         symbol='GENE234',
+                                         description='foo',
+                                         chromosome='X',
+                                         gene_type='bar',
+                                         synonyms='foo|bar'.split('|'),
+                                         aliases='foo|bar'.split('|'))
         self.disease1 = Disease.objects.create(acronym='BLCA',
                                                name='bladder urothelial carcinoma')
         self.disease2 = Disease.objects.create(acronym='GBM',
                                                name='glioblastoma multiforme')
         self.classifier_post_data = {
-            'genes': [self.gene1.id, self.gene2.id],
+            'genes': [self.gene1.entrez_gene_id, self.gene2.entrez_gene_id],
             'diseases': [self.disease1.acronym, self.disease2.acronym]
         }
 

@@ -44,13 +44,13 @@ class Gene(models.Model):
     class Meta:
         db_table = "cognoma_genes"
 
-    entrezid = models.IntegerField(primary_key=True)
-    symbol = models.CharField(max_length=25)
-    description = models.CharField(max_length=255)
-    chromosome = models.CharField(max_length=25, null=True)
-    gene_type = models.CharField(max_length=25)
-    synonyms = models.TextField(null=True)
-    aliases = models.TextField(null=True)
+    entrez_gene_id = models.IntegerField(primary_key=True)
+    symbol = models.CharField(max_length=32)
+    description = models.CharField(max_length=256)
+    chromosome = models.CharField(max_length=8, null=True)
+    gene_type = models.CharField(max_length=16)
+    synonyms = postgresfields.ArrayField(models.CharField(max_length=32), null=True)
+    aliases = postgresfields.ArrayField(models.CharField(max_length=256), null=True)
 
 
 class Mutation(models.Model):
