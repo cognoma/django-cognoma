@@ -9,7 +9,6 @@ GENDER_CHOICES = (
     ("female", "Female")
 )
 
-
 class User(models.Model):
     class Meta:
         db_table = "users"
@@ -21,14 +20,12 @@ class User(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-
 class Disease(models.Model):
     class Meta:
         db_table = "diseases"
 
     acronym = models.CharField(primary_key=True, max_length=255)
     name = models.CharField(max_length=255, null=False, blank=False)
-
 
 class Sample(models.Model):
     class Meta:
@@ -38,7 +35,6 @@ class Sample(models.Model):
     disease = models.ForeignKey(Disease)
     gender = models.CharField(choices=GENDER_CHOICES, max_length=6, null=True)
     age_diagnosed = models.IntegerField(null=True, blank=False)
-
 
 class Gene(models.Model):
     class Meta:
@@ -52,7 +48,6 @@ class Gene(models.Model):
     synonyms = postgresfields.ArrayField(models.CharField(max_length=32), null=True)
     aliases = postgresfields.ArrayField(models.CharField(max_length=256), null=True)
 
-
 class Mutation(models.Model):
     class Meta:
         db_table = "mutations"
@@ -60,7 +55,6 @@ class Mutation(models.Model):
     # id added by default
     gene = models.ForeignKey(Gene, related_name='mutations')
     sample = models.ForeignKey(Sample, related_name='mutations')
-
 
 class Classifier(models.Model):
     class Meta:

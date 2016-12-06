@@ -1,8 +1,8 @@
 import os
 import csv
+import bz2
 
 from django.core.management.base import BaseCommand
-import pandas as pd
 
 from api.models import Disease, Sample, Gene, Mutation
 
@@ -67,3 +67,22 @@ class Command(BaseCommand):
                     )
                     gene_list.append(gene)
                 Gene.objects.bulk_create(gene_list)
+
+        # Mutations
+        if Mutation.objects.count() == 0:
+            mutation_path = os.path.join(options['path'], 'mutation-matrix.tsv.bz2')
+            with bz2.open(mutation_path , 'rt') as mutation_file:
+                mutation_reader = csv.DictReader(mutation_file, delimiter='\t')
+                mutation_list = []
+                for row in mutation_reader:
+                    sample_id = row.pop('sample_id')
+                    sample = Sample.objects.get(sample_id=sample_id)
+                    for entrez_gene_id, mutation_status in row.items():
+                        if mutation_status == '1':
+                            try:
+                                gene = Gene.objects.get(entrez_gene_id=entrez_gene_id)
+                                mutation = Mutation(gene=gene, sample=sample)
+                                mutation_list.append(mutation)
+                            except:
+                                print('OOPS! Had an issue inserting sample', sample_id, 'mutation', entrez_gene_id)
+                Mutation.objects.bulk_create(mutation_list)

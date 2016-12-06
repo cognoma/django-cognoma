@@ -32,3 +32,8 @@ class Command(BaseCommand):
         if not os.path.exists(gene_path):
             gene_url = 'https://raw.githubusercontent.com/cognoma/genes/master/data/genes.tsv'
             urlretrieve(gene_url, gene_path)
+
+        mutation_path = os.path.join(options['path'], 'mutation-matrix.tsv.bz2')
+        if not os.path.exists(mutation_path):
+            mutation_url = 'https://ndownloader.figshare.com/files/5864862'
+            urlretrieve(mutation_url, mutation_path)
