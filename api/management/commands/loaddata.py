@@ -84,5 +84,5 @@ class Command(BaseCommand):
                                 mutation = Mutation(gene=gene, sample=sample)
                                 mutation_list.append(mutation)
                             except:
-                                print('OOPS! Had an issue inserting sample', sample_id, 'mutation', entrez_gene_id)
+                                print('Had an issue inserting sample', sample_id, 'mutation', entrez_gene_id)
                 Mutation.objects.bulk_create(mutation_list)

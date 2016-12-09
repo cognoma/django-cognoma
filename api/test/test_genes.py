@@ -18,15 +18,15 @@ class GeneTests(APITestCase):
                                          description='foo',
                                          chromosome='1',
                                          gene_type='bar',
-                                         synonyms='foo|bar'.split('|'),
-                                         aliases='foo|bar'.split('|'))
+                                         synonyms=['foo', 'bar'],
+                                         aliases=['foo', 'bar'])
         self.gene2 = Gene.objects.create(entrez_gene_id=234567,
                                          symbol='GENE234',
                                          description='foo',
                                          chromosome='X',
                                          gene_type='bar',
-                                         synonyms='foo|bar'.split('|'),
-                                         aliases='foo|bar'.split('|'))
+                                         synonyms=['foo', 'bar'],
+                                         aliases=['foo', 'bar'])
 
     def test_list_genes(self):
         client = APIClient()
@@ -63,4 +63,3 @@ class GeneTests(APITestCase):
         self.assertEqual(len(list_response.data['results']), 1)
         self.assertEqual(list(list_response.data['results'][0].keys()), self.gene_keys)
         self.assertEqual(list_response.data['results'][0]['entrez_gene_id'], 123456)
-

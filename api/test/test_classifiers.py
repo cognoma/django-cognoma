@@ -27,15 +27,15 @@ class ClassifierTests(APITestCase):
                                          description='foo',
                                          chromosome='1',
                                          gene_type='bar',
-                                         synonyms='foo|bar'.split('|'),
-                                         aliases='foo|bar'.split('|'))
+                                         synonyms=['foo', 'bar'],
+                                         aliases=['foo', 'bar'])
         self.gene2 = Gene.objects.create(entrez_gene_id=234567,
                                          symbol='GENE234',
                                          description='foo',
                                          chromosome='X',
                                          gene_type='bar',
-                                         synonyms='foo|bar'.split('|'),
-                                         aliases='foo|bar'.split('|'))
+                                         synonyms=['foo', 'bar'],
+                                         aliases=['foo', 'bar'])
         self.disease1 = Disease.objects.create(acronym='BLCA',
                                                name='bladder urothelial carcinoma')
         self.disease2 = Disease.objects.create(acronym='GBM',
@@ -224,4 +224,3 @@ class ClassifierTests(APITestCase):
         self.assertTrue(isinstance(list_response.data['results'][1]['genes'][1], dict))
         self.assertTrue(isinstance(list_response.data['results'][1]['diseases'][0], dict))
         self.assertTrue(isinstance(list_response.data['results'][1]['diseases'][1], dict))
-

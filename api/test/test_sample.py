@@ -2,7 +2,6 @@ from rest_framework.test import APITestCase, APIClient
 
 from api.models import Sample, Disease, Mutation, Gene
 
-
 class SampleTests(APITestCase):
     sample_keys = ['sample_id',
                    'disease',
@@ -16,8 +15,8 @@ class SampleTests(APITestCase):
                                          description='foo',
                                          chromosome='1',
                                          gene_type='bar',
-                                         synonyms='foo|bar'.split('|'),
-                                         aliases='foo|bar'.split('|'))
+                                         synonyms=['foo', 'bar'],
+                                         aliases=['foo', 'bar'])
         self.disease1 = Disease.objects.create(acronym='BLCA',
                                                name='bladder urothelial carcinoma')
         self.sample1 = Sample.objects.create(sample_id='TCGA-22-4593-01',

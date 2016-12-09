@@ -50,12 +50,10 @@ class UserSerializer(DynamicFieldsMixin, serializers.Serializer):
 
         return output
 
-
 class MutationSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializers.Serializer):
     id = serializers.IntegerField()
     gene = serializers.PrimaryKeyRelatedField(queryset=Gene.objects.all())
     sample = serializers.PrimaryKeyRelatedField(queryset=Sample.objects.all())
-
 
 class GeneSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializers.Serializer):
     class Meta:
@@ -72,20 +70,16 @@ class GeneSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializers.Se
     aliases = serializers.ListField(child=serializers.CharField(allow_blank=True))
     mutations = serializers.PrimaryKeyRelatedField(many=True, queryset=Mutation.objects.all())
 
-
 class MutationSerializerMeta:
     expandable_fields = {
         'gene': GeneSerializer,
     }
 
-
 MutationSerializer.Meta = MutationSerializerMeta
-
 
 class DiseaseSerializer(DynamicFieldsMixin, serializers.Serializer):
     acronym = serializers.CharField()
     name = serializers.CharField()
-
 
 class ClassifierSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializers.Serializer):
     class Meta:
@@ -139,7 +133,6 @@ class ClassifierSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializ
         instance.results = validated_data.get('results', instance.results)
         instance.save()
         return instance
-
 
 class SampleSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializers.Serializer):
     class Meta:
