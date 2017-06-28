@@ -6,7 +6,6 @@ from expander import ExpanderSerializerMixin
 from drf_dynamic_fields import DynamicFieldsMixin
 from django.conf import settings
 
-from genes.models import Gene, Organism
 from api.services.task import TaskServiceClient
 from api.models import User, Classifier, Disease, Sample, Mutation, Gene
 
@@ -110,13 +109,13 @@ class ClassifierSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializ
             user = self.context['request'].user
 
         classifier_input = {
-            'user': user, # force loggedin user id
+            'user': user, # force logged in user id
         }
 
         if 'results' in validated_data:
             classifier_input['results'] = validated_data['results']
 
-        classifier =  Classifier.objects.create(**classifier_input)
+        classifier = Classifier.objects.create(**classifier_input)
 
         if 'genes' in validated_data:
             for gene in validated_data['genes']:
@@ -130,9 +129,18 @@ class ClassifierSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializ
             task_service = TaskServiceClient(settings.TASK_SERVICE_BASE_URL,
                                              settings.AUTH_TOKEN)
 
+            # TODO: create a task def before creating the task?
             task = {
                 'task_def': 'classifier-search',
-                'unique': str(classifier.id),
+                # There is a unique constraint setup in the task-service database on the unique field of a task.
+                # In core-service testing, classifiers are created and then destroyed in the test database.
+                # However, the task-service being used during testing has its own independent database that isn't
+                # being reset like the core-service database.
+                # Consequently, requests to the task-service will fail because using the id of the classifier
+                # as the unique field will violate the unique constraint if a new classifier (with id of 1, for example)
+                # is used each time.
+                # During testing, the unique key is just a random number so that this isn't a problem.
+                'unique': str(random.random())[2:] if settings.TESTING_MODE else str(classifier.id),
                 'data': ClassifierSerializer(classifier).data
             }
 
@@ -140,11 +148,6 @@ class ClassifierSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializ
 
             classifier.task_id = task['id']
             classifier.save()
-
-            if self.context and 'request' in self.context and 'expand' in self.context['request'].query_params:
-                expand = self.context['request'].query_params.getlist('expand')
-                if 'task' in expand:
-                    output['task'] = task
 
         return classifier
 
