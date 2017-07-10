@@ -4,7 +4,8 @@ from api import views
 
 urlpatterns = [
     url(r'^classifiers/?$', views.ClassifierListCreate.as_view()),
-    url(r'^classifiers/(?P<id>[0-9]+)$', views.ClassifierRetrieveUpdate.as_view()),
+    url(r'^classifiers/(?P<id>[0-9]+)$', views.RetrieveClassifier.as_view()),
+    url(r'^classifiers/(?P<id>[0-9]+)/upload/?$', views.UploadCompletedNotebookToClassifier.as_view()),
 
     url(r'^users/?$', views.UserListCreate.as_view()),
     url(r'^users/(?P<id>[0-9]+)$', views.UserRetrieveUpdate.as_view()),

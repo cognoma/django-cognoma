@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
+import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,6 +26,7 @@ SECRET_KEY = 'x!w(6=d6#)yl0ne8yhv#2+*+_nk7vf0#peh4hehg$&83fp^u01'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
+TESTING_MODE = 'test' in sys.argv
 
 ALLOWED_HOSTS = [os.getenv('DJANGO_HOST', '*')]
 
@@ -98,6 +100,12 @@ AeN+7bMBi4PfTr4Y4VN/93OBckj4Dfe6AEtq31Z5Urh/e/+zaixbsmenAR1hvC6Z
 # SECURITY WARNING: change this to the prod public key!!
 JWT_PUB_KEY = os.getenv('JWT_PUB_KEY', dev_pub_key)
 
+AUTH_TOKEN = os.getenv('AUTH_TOKEN', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzZXJ2aWNlIjoiY29yZSJ9.HHlbWMjo-Y__DGV0DAiCY7u85FuNtY8wpovcZ9ga-oCsLdM2H5iVSz1vKiWK8zxl7dSYltbnyTNMxXO2cDS81hr4ohycr7YYg5CaE5sA5id73ab5T145XEdF5X_HXoeczctGq7X3x9QYSn7O1fWJbPWcIrOCs6T2DrySsYgjgdAAnWnKedy_dYWJ0YtHY1bXH3Y7T126QqVlQ9ylHk6hmFMCtxMPbuAX4YBJsxwjWpMDpe13xbaU0Uqo5N47a2_vi0XzQ_tzH5esLeFDl236VqhHRTIRTKhPTtRbQmXXy1k-70AU1FJewVrQddxbzMXJLFclStIdG_vW1dWdqhh-hQ')
+
+TASK_SERVICE_BASE_URL = os.getenv('TASK_SERVICE_BASE_URL', 'http://task:8000')
+
+CREATE_TASKS = os.getenv('CREATE_TASKS', 'False') == 'True'
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
 
@@ -111,10 +119,11 @@ USE_L10N = True
 
 USE_TZ = True
 
+TEST_RUNNER = 'cognoma_site.test_runner.TemporaryMediaTestSuiteRunner'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
-
+MEDIA_ROOT = 'media_files'
 STATIC_URL = '/static/'
 
 # Extra static assets that aren't tied to an app

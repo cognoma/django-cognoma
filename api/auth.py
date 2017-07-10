@@ -84,3 +84,13 @@ class ClassifierPermission(permissions.BasePermission):
             return True
 
         return False
+
+class TaskServicePermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        if request.auth['type'] == 'JWT' and request.auth['service'] == 'core':
+            return True
+        else:
+            raise exceptions.NotAuthenticated()

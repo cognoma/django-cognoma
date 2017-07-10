@@ -60,11 +60,16 @@ class Classifier(models.Model):
     class Meta:
         db_table = "classifiers"
 
+    def classifier_notebook_file_path(instance, filename):
+        # file will be uploaded to MEDIA_ROOT/notebooks/classifier_<id>.ipynb
+        return 'notebooks/classifier_{0}.ipynb'.format(instance.id)
+
     # id added by default
     genes = models.ManyToManyField(Gene)
     diseases = models.ManyToManyField(Disease)
     user = models.ForeignKey(User)
-    task_id = models.IntegerField(null=False, blank=False)
+    task_id = models.IntegerField(null=True, blank=False)
     results = postgresfields.JSONField(null=True)
+    notebook_file = models.FileField(null=True, upload_to=classifier_notebook_file_path)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -1,10 +1,13 @@
 import django_filters
-from rest_framework import filters
-from rest_framework import generics
+from rest_framework import filters, generics
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.exceptions import NotFound
+from rest_framework.parsers import MultiPartParser
 
 from api.models import User, Classifier, Disease, Sample, Mutation, Gene
 from api import serializers
-from api.auth import UserUpdateSelfOnly, ClassifierPermission
+from api.auth import UserUpdateSelfOnly, ClassifierPermission, TaskServicePermission
 
 # Classifier
 
@@ -28,11 +31,26 @@ class ClassifierListCreate(generics.ListCreateAPIView):
     ordering_fields = ('user', 'created_at', 'updated_at')
     ordering = ('created_at',)
 
-class ClassifierRetrieveUpdate(generics.RetrieveUpdateAPIView):
+class RetrieveClassifier(generics.RetrieveAPIView):
     permission_classes = (ClassifierPermission,)
     queryset = Classifier.objects.all()
     serializer_class = serializers.ClassifierSerializer
     lookup_field = 'id'
+
+class UploadCompletedNotebookToClassifier(APIView):
+    permission_classes = (TaskServicePermission,)
+
+    def post(self, request, id):
+        try:
+            classifier = Classifier.objects.get(id=id)
+        except Classifier.DoesNotExist:
+            raise NotFound('Classifier not found')
+
+        serializer = serializers.ClassifierSerializer(classifier, data={'notebook_file': request.FILES['notebook_file']}, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(data='Notebook uploaded successfully.', status=201)
 
 # User
 

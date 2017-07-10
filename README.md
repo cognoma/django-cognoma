@@ -18,6 +18,8 @@ Make sure to fork [this repository on
 
 ## Starting up the service
 
+### core-service only
+
 ```sh
 docker-compose up
 ```
@@ -27,6 +29,14 @@ Sometimes the postgres image takes a while to load on first run and the Django s
 The code in the repository is also mounted as a volume in the core-service container. This means you can edit code on your host machine, using your favorite editor, and the django server will automatically restart to reflect the code changes.
 
 The server should start up at http://localhost:8080/, see the [API docs](https://github.com/cognoma/core-service/blob/master/doc/api.md).
+
+### all services (including task-service)
+```sh
+docker-compose --file docker-compose-all.yml up 
+```
+If you want to run both core-service and task-service simultaneously (the two main Cognoma services), this command uses a separate docker-compose file which will spawn those services for you.
+The `docker-compose-all.yml` file is looking for the task-service code repository to be in a directory called "task-service" in the parent directory of this repository (`../task-service`).
+
 
 ## Running tests locally
 

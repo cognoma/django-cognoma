@@ -4,9 +4,10 @@ import random
 from rest_framework import serializers, exceptions
 from expander import ExpanderSerializerMixin
 from drf_dynamic_fields import DynamicFieldsMixin
+from django.conf import settings
 
 from api.models import User, Classifier, Disease, Sample, Mutation, Gene
-
+from api.services.task import TaskServiceClient
 
 class UserSerializer(DynamicFieldsMixin, serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
@@ -97,6 +98,7 @@ class ClassifierSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializ
     user = serializers.PrimaryKeyRelatedField(required=False, queryset=User.objects.all())
     task_id = serializers.IntegerField(read_only=True)
     results = serializers.JSONField(required=False, allow_null=True)
+    notebook_file = serializers.FileField(required=False, allow_empty_file=False, allow_null=True)
     created_at = serializers.DateTimeField(read_only=True, format='iso-8601')
     updated_at = serializers.DateTimeField(read_only=True, format='iso-8601')
 
@@ -110,14 +112,13 @@ class ClassifierSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializ
             user = self.context['request'].user
 
         classifier_input = {
-            'user': user, # force loggedin user id
-            'task_id': 234 # TODO: create task
+            'user': user, # force logged in user id
         }
 
         if 'results' in validated_data:
             classifier_input['results'] = validated_data['results']
 
-        classifier =  Classifier.objects.create(**classifier_input)
+        classifier = Classifier.objects.create(**classifier_input)
 
         if 'genes' in validated_data:
             for gene in validated_data['genes']:
@@ -127,14 +128,63 @@ class ClassifierSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializ
             for disease in validated_data['diseases']:
                 classifier.diseases.add(disease)
 
+        if settings.CREATE_TASKS:
+            task_service = TaskServiceClient(settings.TASK_SERVICE_BASE_URL,
+                                             settings.AUTH_TOKEN)
+
+            # TODO: create a task def before creating the task?
+            task = {
+                'task_def': {
+                    'name': 'classifier-search'
+                },
+                # There is a unique constraint setup in the task-service database on the unique field of a task.
+                # In core-service testing, classifiers are created and then destroyed in the test database.
+                # However, the task-service being used during testing has its own independent database that isn't
+                # being reset like the core-service database.
+                # Consequently, requests to the task-service will fail because using the id of the classifier
+                # as the unique field will violate the unique constraint if a new classifier (with id of 1, for example)
+                # is used each time.
+                # During testing, the unique key is just a random number so that this isn't a problem.
+                'unique': str(random.random())[2:] if settings.TESTING_MODE else str(classifier.id),
+                'data': ClassifierSerializer(classifier).data
+            }
+
+            task = task_service.create(task)
+
+            classifier.task_id = task['id']
+            classifier.save()
+
         return classifier
 
     def update(self, instance, validated_data):
-        instance.genes = validated_data.get('genes', instance.genes)
-        instance.diseases = validated_data.get('diseases', instance.diseases)
+        genes = validated_data.get('genes', None)
+        diseases = validated_data.get('diseases', None)
+
+        if genes is not None:
+            instance.genes = genes
+        if diseases is not None:
+            instance.diseases = diseases
         instance.results = validated_data.get('results', instance.results)
+        instance.notebook_file = validated_data.get('notebook_file', instance.notebook_file)
+
         instance.save()
         return instance
+
+    def to_representation(self, obj):
+        output = serializers.Serializer.to_representation(self, obj)
+
+        if self.context and 'request' in self.context and 'expand' in self.context['request'].query_params:
+            expand = self.context['request'].query_params.getlist('expand')
+
+            if 'task' in expand:
+                task_service = TaskServiceClient(settings.TASK_SERVICE_BASE_URL,
+                                                 settings.AUTH_TOKEN)
+                output['task'] = task_service.get(output['task_id'])
+
+            if 'user' in expand and not isinstance(output['user'], dict):
+                output['user'] = UserSerializer(User.objects.get(id=output['user']), context=self.context).data
+
+        return output
 
 class SampleSerializer(DynamicFieldsMixin, ExpanderSerializerMixin, serializers.Serializer):
     class Meta:
