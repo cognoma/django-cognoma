@@ -26,8 +26,8 @@ urlpatterns = [
     url(r'^diseases/?$', views.DiseaseList.as_view()),
     url(r'^diseases/(?P<acronym>[a-zA-Z]+)$', views.DiseaseRetrieve.as_view()),
 
-    url(r'^mutations/?$', views.MutationList.as_view()),
-    url(r'^mutations/(?P<id>[0-9]+)$', views.MutationRetrieve.as_view()),
+    # url(r'^mutations/?$', views.MutationList.as_view()),
+    # url(r'^mutations/(?P<id>[0-9]+)$', views.MutationRetrieve.as_view()),
 
     url(r'^samples/?$', views.SampleList.as_view()),
     url(r'^samples/(?P<sample_id>[A-Z0-9\-]+)$', views.SampleRetrieve.as_view()),
