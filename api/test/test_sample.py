@@ -38,6 +38,10 @@ class SampleTests(APITestCase):
                                              disease=self.disease1,
                                              gender='male',
                                              age_diagnosed=43)
+        self.sample4 = Sample.objects.create(sample_id='TCGA-2G-AALW-03',
+                                             disease=self.disease1,
+                                             gender='male',
+                                             age_diagnosed=42)
         self.mutation1 = Mutation.objects.create(gene=self.gene1,
                                                  sample=self.sample1)
         self.mutation2 = Mutation.objects.create(gene=self.gene1,
@@ -55,7 +59,7 @@ class SampleTests(APITestCase):
                                                            'next',
                                                            'previous',
                                                            'results'])
-        self.assertEqual(len(list_response.data['results']), 3)
+        self.assertEqual(len(list_response.data['results']), 4)
         self.assertEqual(list(list_response.data['results'][0].keys()), self.sample_keys)
         self.assertEqual(list(list_response.data['results'][1].keys()), self.sample_keys)
 
@@ -84,16 +88,16 @@ class SampleTests(APITestCase):
         client = APIClient()
 
         get_response1 = client.get('/samples?disease=' + self.disease1.acronym +
-                                  '&mutations__gene=' +
+                                  '&any_mutations=' +
                                   str(self.gene2.entrez_gene_id) +
-                                  '&mutations__gene=' +
+                                  ',' +
                                   str(self.gene1.entrez_gene_id))
         self.assertEqual(get_response1.status_code, 200)
 
         get_response2 = client.get('/samples?disease=' + self.disease1.acronym +
-                                  '&mutations__gene=' +
+                                  '&any_mutations=' +
                                   str(self.gene1.entrez_gene_id) +
-                                  '&mutations__gene=' +
+                                  ',' +
                                   str(self.gene2.entrez_gene_id))
         self.assertEqual(get_response2.status_code, 200)
 
@@ -103,9 +107,9 @@ class SampleTests(APITestCase):
         client = APIClient()
 
         get_response = client.get('/samples?disease=' + self.disease1.acronym +
-                                  '&mutations__gene=' +
+                                  '&any_mutations=' +
                                   str(self.gene2.entrez_gene_id) +
-                                  '&mutations__gene=' +
+                                  ',' +
                                   str(self.gene1.entrez_gene_id))
 
         self.assertEqual(get_response.status_code, 200)
