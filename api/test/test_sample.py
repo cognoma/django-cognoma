@@ -74,31 +74,32 @@ class SampleTests(APITestCase):
     def test_single_gene_query(self):
         client = APIClient()
 
-        get_response = client.get('/samples?disease=' + self.disease1.acronym +
-                                  '&mutations__gene=' +
-                                  str(self.gene2.entrez_gene_id))
+        get_response = client.get('/samples', {
+                                  'disease': self.disease1.acronym,
+                                  'any_mutations': str(self.gene2.entrez_gene_id),
+                                  })
 
         self.assertEqual(get_response.status_code, 200)
         self.assertEqual(len(get_response.data['results']), 1)
-        expected_samples = set([self.sample3.sample_id,])
-        returned_samples = set([x['sample_id'] for x in get_response.data['results']])
+        expected_samples = [self.sample3.sample_id,]
+        returned_samples = [x['sample_id'] for x in get_response.data['results']]
         self.assertEqual(expected_samples, returned_samples)
 
     def test_multi_gene_query_order_invariant(self):
         client = APIClient()
 
-        get_response1 = client.get('/samples?disease=' + self.disease1.acronym +
-                                  '&any_mutations=' +
-                                  str(self.gene2.entrez_gene_id) +
-                                  ',' +
-                                  str(self.gene1.entrez_gene_id))
+        get_response1 = client.get('/samples', {
+                                  'disease': self.disease1.acronym,
+                                  'any_mutations':
+                                      ','.join([str(self.gene1.entrez_gene_id), str(self.gene2.entrez_gene_id)]),
+                                  })
         self.assertEqual(get_response1.status_code, 200)
 
-        get_response2 = client.get('/samples?disease=' + self.disease1.acronym +
-                                  '&any_mutations=' +
-                                  str(self.gene1.entrez_gene_id) +
-                                  ',' +
-                                  str(self.gene2.entrez_gene_id))
+        get_response2 = client.get('/samples', {
+                                  'disease': self.disease1.acronym,
+                                  'any_mutations':
+                                      ','.join([str(self.gene2.entrez_gene_id), str(self.gene1.entrez_gene_id)]),
+                                  })
         self.assertEqual(get_response2.status_code, 200)
 
         self.assertEqual(get_response1.data['results'], get_response2.data['results'])
@@ -106,15 +107,15 @@ class SampleTests(APITestCase):
     def test_multi_gene_query(self):
         client = APIClient()
 
-        get_response = client.get('/samples?disease=' + self.disease1.acronym +
-                                  '&any_mutations=' +
-                                  str(self.gene2.entrez_gene_id) +
-                                  ',' +
-                                  str(self.gene1.entrez_gene_id))
+        get_response = client.get('/samples', {
+                                  'disease': self.disease1.acronym,
+                                  'any_mutations':
+                                      ','.join([str(self.gene2.entrez_gene_id), str(self.gene1.entrez_gene_id)]),
+                                  })
 
         self.assertEqual(get_response.status_code, 200)
         self.assertEqual(len(get_response.data['results']), 3)
-        expected_samples = set([self.sample1.sample_id, self.sample2.sample_id,
-            self.sample3.sample_id,])
-        returned_samples = set([x['sample_id'] for x in get_response.data['results']])
-        self.assertEqual(expected_samples, returned_samples)
+        expected_samples = [self.sample1.sample_id, self.sample2.sample_id,
+            self.sample3.sample_id,]
+        returned_samples = [x['sample_id'] for x in get_response.data['results']]
+        self.assertEqual(sorted(expected_samples), sorted(returned_samples))
